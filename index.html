@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Soloist | Secret Santa</title>
+    <style>
+        :root {
+            --cream: #FDFBF7;
+            --warm-tan: #E8DFD5;
+            --guitar-orange: #E67E22;
+            --sage: #7D8C71;
+            --dark-text: #2C3E50;
+            --light-text: #666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(253, 251, 247, 0.95) 35%,
+                rgba(232, 223, 213, 1) 100%
+            );
+            color: var(--dark-text);
+            font-family: 'Segoe UI', Trebuchet MS, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body.locked {
+            overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+                padding-bottom: 110px;
+            }
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .container.reveal {
+            opacity: 1;
+            pointer-events: auto;
+            animation: slideInDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-text {
+            font-size: 0.85rem;
+            color: var(--sage);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            animation: fadeInText 0.8s ease-out 0.2s both;
+            font-weight: 600;
+        }
+
+        /* Hero Animation */
+        .hero-animation {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, #f0ede8 0%, #e8e3dd 100%);
+            border-radius: 25px;
+            margin-top: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--sage);
+            box-shadow: 0 15px 40px rgba(125, 140, 113, 0.15);
+            position: relative;
+        }
+
+        @media (max-width: 480px) {
+            .hero-animation {
+                height: 280px;
+                margin-bottom: 20px;
+                border-radius: 20px;
+            }
+        }
+
+        .hero-overlay {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: #2C3E50;
+            font-weight: 600;
+            z-index: 10;
+            animation: slideInRight 0.8s ease-out 0.5s both;
+        }
+        @media (max-width: 480px) {
+            .hero-overlay {
+                bottom: 22px;
+                right: 12px;
+                font-size: 0.65rem;
+                padding: 5px 10px;
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-overlay {
+            animation: slideInRight 0.8s ease-out 0.5s both, floatBadge 3s ease-in-out infinite 0.8s !important;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .bg-shape {
+            position: fixed;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+
+        .bg-shape.top {
+            background: rgba(125, 140, 113, 0.18);
+            top: -60px;
+            left: -60px;
+            animation: floatShape 8s ease-in-out infinite;
+        }
+
+        .bg-shape.bottom {
+            background: rgba(230, 126, 34, 0.18);
+            bottom: -80px;
+            right: -80px;
+            animation: floatShape 10s ease-in-out infinite;
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        .divider {
+            width: 40px;
+            height: 4px;
+            background: var(--sage);
+            border-radius: 2px;
+            margin: 25px auto;
+            animation: fadeInText 0.8s ease-out 1.1s both;
+        }
+
+        .reveal-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #FDFBF7, #E8DFD5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reveal-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            animation: fadeOut 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .reveal-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            animation: scaleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .gift-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .reveal-card h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            color: var(--sage);
+            margin: 15px 0;
+            letter-spacing: 1px;
+        }
+
+        .reveal-card p {
+            color: var(--light-text);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .season-note {
+            font-size: 0.8rem;
+            color: var(--sage);
+            opacity: 0.75;
+            margin-top: 6px;
+            margin-bottom: 25px;
+        }
+
+        .reveal-btn {
+            margin-top: 20px;
+            padding: 12px 32px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--guitar-orange), #d66a1f);
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(230, 126, 34, 0.5);
+        }
+
+        .reveal-btn:active {
+            transform: scale(0.98);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            background-size: 200% 200%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(
+                ellipse at center,
+                transparent 55%,
+                rgba(0, 0, 0, 0.04) 100%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-animation::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(230, 126, 34, 0.05) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .plant-container {
+            position: relative;
+            width: 180px;
+            height: 240px;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        .plant {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 110px;
+            animation: plantBounce 2.5s ease-in-out infinite, grow 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+            filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        @keyframes plantBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        .leaf {
+            position: absolute;
+            font-size: 55px;
+            opacity: 0;
+            animation: floatLeaf 3.5s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+        }
+
+        .leaf-1 {
+            top: 10px;
+            left: 0px;
+            animation-delay: 0.7s;
+        }
+
+        .leaf-2 {
+            top: 40px;
+            right: 5px;
+            animation-delay: 1.2s;
+        }
+
+        .leaf-3 {
+            top: 70px;
+            left: -10px;
+            animation-delay: 1.7s;
+        }
+
+        @keyframes floatLeaf {
+            0%, 100% { transform: translateY(0) scale(1) rotateZ(0); opacity: 0; }
+            10%, 90% { opacity: 1; }
+            50% { transform: translateY(-40px) scale(1.1) rotateZ(12deg); opacity: 1; }
+        }
+
+        .music-note {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0;
+            animation: noteFloat 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(230, 126, 34, 0.2));
+        }
+
+        .note-1 {
+            top: 20px;
+            left: 20px;
+            animation-delay: 0.9s;
+        }
+
+        .note-2 {
+            top: 50px;
+            right: 25px;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes noteFloat {
+            0%, 100% { transform: translateY(0) rotateZ(-15deg); opacity: 0; }
+            10%, 90% { opacity: 1; }
+            50% { transform: translateY(-35px) rotateZ(15deg); opacity: 1; }
+        }
+
+        @keyframes grow {
+            0% { transform: translateX(-50%) scale(0) rotateZ(-15deg); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1) rotateZ(0); opacity: 1; }
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #7D8C71, #E67E22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 25px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: fadeInText 0.8s ease-out 0.6s both;
+            font-weight: 700;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.9rem;
+                letter-spacing: 2px;
+                margin: 20px 0 6px;
+            }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--guitar-orange);
+            margin-bottom: 20px;
+            animation: fadeInText 0.8s ease-out 0.8s both;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .desk-line {
+            font-size: 0.95rem;
+            color: var(--sage);
+            font-weight: 500;
+            margin-bottom: 20px;
+            animation: fadeInText 0.8s ease-out 0.9s both;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            line-height: 1.8;
+            font-weight: 400;
+            padding: 0 15px;
+            font-size: 1rem;
+            animation: fadeInText 0.8s ease-out 1s both;
+            color: var(--light-text);
+            margin-bottom: 15px;
+        }
+
+        .play-button {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--guitar-orange), #d66a1f);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
+            z-index: 200;
+            animation: slideInDown 0.8s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 12px 35px rgba(230, 126, 34, 0.5);
+        }
+
+        .play-button:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .play-button.hidden {
+            display: none;
+        }
+
+        @keyframes fadeInText {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .music-corner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--guitar-orange), #d66a1f);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
+            z-index: 100;
+            animation: musicPulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .music-corner:active {
+            transform: scale(0.96);
+        }
+
+        .music-corner:hover {
+            box-shadow: 0 12px 35px rgba(230, 126, 34, 0.5);
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 480px) {
+            .music-corner {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 13px;
+                font-size: 0.75rem;
+                gap: 5px;
+            }
+            
+            .music-symbol {
+                font-size: 1rem !important;
+            }
+        }
+
+        .music-symbol {
+            font-size: 1.3rem;
+            animation: musicBounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 35px rgba(230, 126, 34, 0.5);
+            }
+        }
+
+        @keyframes musicBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        .care-card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            margin: 35px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid var(--guitar-orange);
+            animation: fadeInText 0.8s ease-out 1.2s both;
+            transition: all 0.3s ease;
+        }
+
+        .care-card:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .care-card h3 {
+            margin-bottom: 15px;
+            color: var(--guitar-orange);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            font-size: 0.95rem;
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: var(--light-text);
+        }
+
+        td b {
+            color: var(--sage);
+            font-weight: 600;
+        }
+
+        .reveal-section {
+            margin-top: 70px;
+            padding-bottom: 120px;
+            border-top: 2px dashed var(--sage);
+            padding-top: 60px;
+            animation: fadeInText 0.8s ease-out 1.6s both;
+        }
+
+        .reveal-section p {
+            font-size: 1.1rem;
+            color: var(--sage);
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+
+        .secret-santa {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            color: var(--guitar-orange);
+            line-height: 1.8;
+            letter-spacing: 1px;
+            animation: revealPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 2s both, pulse 1.5s ease-in-out infinite 2.9s;
+            font-weight: 700;
+        }
+
+        @keyframes revealPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            animation: confettiFall 3.5s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="locked">
+
+    <div class="reveal-overlay" id="revealOverlay">
+        <div class="reveal-card">
+            <div class="gift-emoji">🎁</div>
+            <h2>A Special Delivery</h2>
+            <p>From your Secret Santa</p>
+            <p class="season-note">A little holiday cheer for your desk 🌲</p>
+            <button class="reveal-btn" onclick="revealPage()">Reveal the Soloist 🎸✨</button>
+        </div>
+    </div>
+
+    <div class="bg-shape top"></div>
+    <div class="bg-shape bottom"></div>
+
+    <audio id="bgMusic" loop src="music.mp3">
+    </audio>
+
+    <div class="music-corner">
+        <span class="music-symbol">🎵</span>
+        <span>Play the Plant's Favorite Song</span>
+    </div>
+
+    <div class="container">
+        <div class="header-text">✨ A Special Gift ✨</div>
+
+        <div class="hero-animation">
+            <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;">
+                <source src="hero.mp4" type="video/mp4">
+            </video>
+            <div class="hero-overlay">🎸 Live from the desk</div>
+        </div>
+
+        <h1>NEW BAND MEMBER</h1>
+        <div class="subtitle">A Soloist Joins the Crew</div>
+        
+        <p class="desk-line">Now performing live at Srini's desk 🌱🎸</p>
+        
+        <p>He doesn't know many chords yet, but he's a world-class listener. He's officially joined the team as your lead acoustic soloist. 🎸</p>
+
+        <div class="divider"></div>
+
+        <div class="care-card">
+            <h3>The Tour Rider (Care Guide)</h3>
+            <table>
+                <tr><td><b>🌥️ Stage Light</b></td><td>Indirect spotlight (Bright room)</td></tr>
+                <tr><td><b>💧 Hydration</b></td><td>Every 2-3 weeks (Performance fee)</td></tr>
+                <tr><td><b>🎧 Vibe</b></td><td>Responds well to lo-fi beats</td></tr>
+            </table>
+        </div>
+
+        <div class="reveal-section">
+            <p>Wait... who sent the talent?</p>
+            <div class="secret-santa">Merry Christmas!<br>From your Secret Santa</div>
+        </div>
+    </div>
+
+    <script>
+        // Reveal page function
+        function revealPage() {
+            const overlay = document.getElementById('revealOverlay');
+            const container = document.querySelector('.container');
+            
+            overlay.classList.add('hidden');
+            document.body.classList.remove('locked');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
+            setTimeout(() => {
+                container.classList.add('reveal');
+                
+                setTimeout(() => {
+                    createConfetti();
+                    const bgMusic = document.getElementById('bgMusic');
+                    bgMusic.volume = 0.3;
+                    bgMusic.play().catch(() => {
+                        document.addEventListener('click', () => {
+                            bgMusic.play();
+                        }, { once: true });
+                    });
+                }, 200);
+            }, 600);
+        }
+
+        // Confetti celebration
+        function createConfetti() {
+            const sparkles = ['✨', '❄️', '🎄', '⭐'];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+
+                confetti.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.fontSize = Math.random() * 6 + 12 + 'px';
+                confetti.style.background = 'transparent';
+                confetti.style.animationDelay = Math.random() * 0.4 + 's';
+
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3600);
+            }
+        }
+
+        // Play subtle tech sound
+        function playChime() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.4);
+                oscillator.type = 'sine';
+                
+                gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } catch(e) {
+                console.log('Sound disabled or not available');
+            }
+        }
+
+        // Play music on first user interaction (no button needed)
+    </script>
+
+</body>
+</html>
